@@ -10,5 +10,11 @@ Rails.application.routes.draw do
       sessions: 'users/sessions'
     }
 
+  namespace :api do
+    namespace :v1 do
+      resources :clients
+    end
+  end
+
   get '/home', to: 'home#index'
 end
