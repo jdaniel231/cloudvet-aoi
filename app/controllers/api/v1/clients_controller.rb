@@ -1,5 +1,6 @@
 class Api::V1::ClientsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_client, only: [:show, :update, :destroy]
 
   def index
     @clients = Client.all
