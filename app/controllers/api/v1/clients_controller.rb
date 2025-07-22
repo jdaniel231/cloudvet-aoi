@@ -3,9 +3,15 @@ class Api::V1::ClientsController < ApplicationController
   before_action :set_client, only: [:show, :update, :destroy]
 
   def index
-    @clients = Client.all
-    render json: @clients, status: :ok
+    pagy, clients = pagy(Client.includes(:animals).all)
+    render json: {
+      clients: clients.as_json(include: { animals: { only: [:name, :species] } }),
+      pagy: pagy_metadata(pagy)
+    }
   end
+
+
+
 
   def show
     @client = Client.find(params[:id])
@@ -16,6 +22,7 @@ class Api::V1::ClientsController < ApplicationController
 
   def create
     @client = Client.new(client_params)
+    @client.user_id = current_user.id
     if @client.save
       render json: @client, status: :created
     else
@@ -41,6 +48,12 @@ class Api::V1::ClientsController < ApplicationController
   end
 
   private
+
+  def set_client
+    @client = Client.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Client not found' }, status: :not_found
+  end
 
   def client_params
     params.require(:client).permit(:name, :cpf, :rg, :address, :address_number, :address_compl, :address_neighborhood)
