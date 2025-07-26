@@ -13,9 +13,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :clients do 
-        resources :animals
+        resources :animals do
+          resources :appointments
+        end
       end
       resources :animals
+      resources :appointments
     end
   end
 

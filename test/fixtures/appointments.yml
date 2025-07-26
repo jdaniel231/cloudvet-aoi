@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  chief_complaint: MyText
+  medical_history: MyText
+  suspected_exams: MyText
+  animal: one
+  client: one
+  user: one
+
+two:
+  chief_complaint: MyText
+  medical_history: MyText
+  suspected_exams: MyText
+  animal: two
+  client: two
+  user: two
