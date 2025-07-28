@@ -15,9 +15,11 @@ Rails.application.routes.draw do
       resources :clients do 
         resources :animals do
           resources :appointments
+          resources :weights
         end
       end
-      resources :animals
+      resources :animals do
+      end
       resources :appointments
     end
   end

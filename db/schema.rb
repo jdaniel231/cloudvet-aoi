@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_22_191451) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_26_152359) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,8 +67,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_22_191451) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "weights", force: :cascade do |t|
+    t.string "kg"
+    t.bigint "animal_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["animal_id"], name: "index_weights_on_animal_id"
+    t.index ["user_id"], name: "index_weights_on_user_id"
+  end
+
   add_foreign_key "animals", "clients"
   add_foreign_key "appointments", "animals"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "weights", "animals"
+  add_foreign_key "weights", "users"
 end

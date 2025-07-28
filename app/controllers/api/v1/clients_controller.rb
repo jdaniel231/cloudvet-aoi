@@ -4,8 +4,23 @@ class Api::V1::ClientsController < ApplicationController
 
   def index
     pagy, clients = pagy(Client.includes(:animals).all)
+
     render json: {
-      clients: clients.as_json(include: { animals: { only: [:name, :species] } }),
+      clients: clients.map do |client|
+        {
+          id: client.id,
+          name: client.name,
+          animals: client.animals
+                        .select { |animal| animal.id.present? }
+                        .map do |animal|
+                          {
+                            id: animal.id,
+                            name: animal.name,
+                            species: animal.species
+                          }
+                        end
+        }
+      end,
       pagy: pagy_metadata(pagy)
     }
   end
