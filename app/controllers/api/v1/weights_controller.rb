@@ -16,7 +16,7 @@ class Api::V1::WeightsController < ApplicationController
       animal: @animal
     ))
     if @weight.save
-      render json: @weight, status: :created
+      render json: @weight, serializer: WeightSerializer, status: :created
     else
       render json: { errors: @weight.errors.full_messages }, status: :unprocessable_entity
     end
@@ -32,17 +32,15 @@ class Api::V1::WeightsController < ApplicationController
 
   def set_animal
     @client = Client.find(params[:client_id])
-    @animal = Animal.find_by(id: params[:animal_id], client_id: @client.id)
-    unless @animal
-      render json: { error: 'Animal not found' }, status: :not_found
-    end
+    @animal = @client.animals.find(params[:animal_id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Client or Animal not found' }, status: :not_found
   end
 
   def set_weight
-    @weight = @animal.weights.find_by(id: params[:id])
-    if @weight.nil?
-      render json: { error: 'Weight not found' }, status: :not_found
-    end
+    @weight = @animal.weights.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Weight not found' }, status: :not_found
   end
 
   def weight_params

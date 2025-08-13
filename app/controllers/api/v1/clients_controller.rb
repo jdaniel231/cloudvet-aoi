@@ -3,34 +3,15 @@ class Api::V1::ClientsController < ApplicationController
   before_action :set_client, only: [:show, :update, :destroy]
 
   def index
-    pagy, clients = pagy(Client.includes(:animals).all)
-
-    render json: {
-      clients: clients.map do |client|
-        {
-          id: client.id,
-          name: client.name,
-          animals: client.animals
-                        .select { |animal| animal.id.present? }
-                        .map do |animal|
-                          {
-                            id: animal.id,
-                            name: animal.name,
-                            species: animal.species
-                          }
-                        end
-        }
-      end,
-      pagy: pagy_metadata(pagy)
-    }
+    @pagy, @clients = pagy(Client.includes(:animals).all)
+    render json: @clients.as_json(include: { animals: { only: [:id, :name, :species] } }), meta: pagy_metadata(@pagy)
   end
 
 
 
 
   def show
-    @client = Client.find(params[:id])
-    render json: @client, status: :ok
+    render json: @client, serializer: ClientSerializer, status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Client not found' }, status: :not_found
   end
@@ -46,7 +27,6 @@ class Api::V1::ClientsController < ApplicationController
   end
 
   def update
-    @client = Client.find(params[:id])
     if @client.update(client_params)
       render json: @client, status: :ok
     else
@@ -55,11 +35,8 @@ class Api::V1::ClientsController < ApplicationController
   end
 
   def destroy
-    @client = Client.find(params[:id])
     @client.destroy
     head :no_content
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Client not found' }, status: :not_found
   end
 
   private
@@ -71,6 +48,6 @@ class Api::V1::ClientsController < ApplicationController
   end
 
   def client_params
-    params.require(:client).permit(:name, :cpf, :rg, :address, :address_number, :address_compl, :address_neighborhood)
+    params.require(:client).permit(:name, :cpf, :rg, :address, :number_address, :compl_address, :neighborhoods, :phone)
   end
 end
