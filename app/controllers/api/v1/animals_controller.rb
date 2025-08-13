@@ -6,12 +6,8 @@ module Api
       before_action :set_animal, only: [:show, :update, :destroy]
 
       def index
-        if params[:client_id]
-          @animals = Animal.where(client_id: params[:client_id])
-        else
-          @animals = Animal.all
-        end
-        render json: @animals
+        @pagy, @animals = pagy(Animal.by_client(params[:client_id]))
+        render json: @animals, each_serializer: AnimalSerializer, meta: pagy_metadata(@pagy)
       end
 
       def show
@@ -37,7 +33,7 @@ module Api
 
       def update
         if @animal.update(animal_params)
-          render json: @animal
+          render json: @animal, serializer: AnimalSerializer
         else
           render json: @animal.errors, status: :unprocessable_entity
         end
@@ -51,7 +47,7 @@ module Api
       private
 
       def set_animal
-        @animal = Animal.find_by(id: params[:id])
+        @animal = Animal.find(params[:id])
       end
 
       def animal_params

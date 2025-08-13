@@ -6,8 +6,8 @@ module Api
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/appointments
       def index
-        @appointments = @animal.appointments.where(client_id: @client.id).includes(:user)
-        render json: @appointments.as_json(include: { user: { only: [:id, :email] } }), status: :ok
+        @pagy, @appointments = pagy(@animal.appointments.includes(:user))
+        render json: @appointments, each_serializer: AppointmentSerializer, meta: pagy_metadata(@pagy), status: :ok
       end
 
 
@@ -50,20 +50,17 @@ module Api
 
       # Busca client e animal para todas ações (exceto talvez index se quiser listar geral)
       def set_client_and_animal
-        @client = Client.find_by(id: params[:client_id])
-        @animal = Animal.find_by(id: params[:animal_id], client_id: @client&.id)
-
-        if @client.nil? || @animal.nil?
-          render json: { error: 'Client or Animal not found' }, status: :not_found
-        end
+        @client = Client.find(params[:client_id])
+        @animal = @client.animals.find(params[:animal_id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Client or Animal not found' }, status: :not_found
       end
 
       # Busca a consulta garantindo que pertence ao client e animal indicados
       def set_appointment
-        @appointment = @animal.appointments.find_by(id: params[:id], client_id: @client.id)
-        if @appointment.nil?
-          render json: { error: 'Appointment not found' }, status: :not_found
-        end
+        @appointment = @animal.appointments.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Appointment not found' }, status: :not_found
       end
 
       def appointment_params

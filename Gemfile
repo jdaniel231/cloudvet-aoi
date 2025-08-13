@@ -19,7 +19,7 @@ gem 'devise-jwt'
 
 gem 'rack-cors'
 gem 'pagy'
-
+gem 'active_model_serializers'
 
 
 # Use Redis adapter to run Action Cable in production
