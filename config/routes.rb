@@ -16,11 +16,15 @@ Rails.application.routes.draw do
         resources :animals do
           resources :appointments
           resources :weights
+          resources :vaccines
         end
       end
       resources :animals do
       end
       resources :appointments
+      resources :vaccine_types
+      resources :users
+      
     end
   end
 

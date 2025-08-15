@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_26_152359) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_15_121744) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,27 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_26_152359) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "vaccine_types", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
+  end
+
+  create_table "vaccines", force: :cascade do |t|
+    t.bigint "animal_id", null: false
+    t.bigint "vaccine_type_id", null: false
+    t.date "application_date"
+    t.date "return_date"
+    t.string "applied_dose"
+    t.text "obs"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.index ["animal_id"], name: "index_vaccines_on_animal_id"
+    t.index ["vaccine_type_id"], name: "index_vaccines_on_vaccine_type_id"
+  end
+
   create_table "weights", force: :cascade do |t|
     t.string "kg"
     t.bigint "animal_id", null: false
@@ -81,6 +102,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_26_152359) do
   add_foreign_key "appointments", "animals"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "vaccines", "animals"
+  add_foreign_key "vaccines", "vaccine_types"
   add_foreign_key "weights", "animals"
   add_foreign_key "weights", "users"
 end
