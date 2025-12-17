@@ -2,14 +2,13 @@ module Api
   module V1
     class AppointmentsController < ApplicationController
       before_action :set_client_and_animal
-      before_action :set_appointment, only: [:show, :update, :destroy]
+      before_action :set_appointment, only: %i[show update destroy]
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/appointments
       def index
         @pagy, @appointments = pagy(@animal.appointments.includes(:user))
         render json: @appointments, each_serializer: AppointmentSerializer, meta: pagy_metadata(@pagy), status: :ok
       end
-
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/appointments/:id
       def show
@@ -19,15 +18,15 @@ module Api
       # POST /api/v1/clients/:client_id/animals/:animal_id/appointments
       def create
         @appointment = Appointment.new(appointment_params.merge(
-          user: current_user,
-          client: @client,
-          animal: @animal
-        ))
+                                         user: current_user,
+                                         client: @client,
+                                         animal: @animal
+                                       ))
 
         if @appointment.save
           render json: @appointment, status: :created
         else
-          render json: { errors: @appointment.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @appointment.errors.full_messages }, status: :unprocessable_content
         end
       end
 
@@ -36,7 +35,7 @@ module Api
         if @appointment.update(appointment_params)
           render json: @appointment, status: :ok
         else
-          render json: { errors: @appointment.errors.full_messages }, status: :unprocessable_entity
+          render json: { errors: @appointment.errors.full_messages }, status: :unprocessable_content
         end
       end
 

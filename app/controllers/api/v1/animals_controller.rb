@@ -3,7 +3,7 @@ module Api
   module V1
     class AnimalsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_animal, only: [:show, :update, :destroy]
+      before_action :set_animal, only: %i[show update destroy]
 
       def index
         @pagy, @animals = pagy(Animal.by_client(params[:client_id]))
@@ -27,7 +27,7 @@ module Api
         if @animal.save
           render json: @animal, status: :created
         else
-          render json: @animal.errors, status: :unprocessable_entity
+          render json: @animal.errors, status: :unprocessable_content
         end
       end
 
@@ -35,7 +35,7 @@ module Api
         if @animal.update(animal_params)
           render json: @animal, serializer: AnimalSerializer
         else
-          render json: @animal.errors, status: :unprocessable_entity
+          render json: @animal.errors, status: :unprocessable_content
         end
       end
 

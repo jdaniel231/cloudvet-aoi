@@ -4,7 +4,7 @@ module Api
     class VaccinesController < ApplicationController
       before_action :set_client
       before_action :set_animal
-      before_action :set_vaccine, only: [:show, :update, :destroy]
+      before_action :set_vaccine, only: %i[show update destroy]
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/vaccines
       def index
@@ -20,36 +20,9 @@ module Api
       # POST /api/v1/clients/:client_id/animals/:animal_id/vaccines
       def create
         if vaccine_params[:vaccine_type_id].is_a?(Array)
-          created_vaccines = []
-          errors = []
-
-          Vaccine.transaction do
-            vaccine_params[:vaccine_type_id].each do |type_id|
-              vaccine = @animal.vaccines.build(
-                vaccine_params.except(:vaccine_type_id).merge(vaccine_type_id: type_id)
-              )
-              if vaccine.save
-                created_vaccines << vaccine
-              else
-                errors << vaccine.errors
-                raise ActiveRecord::Rollback
-              end
-            end
-          end
-
-          if errors.empty?
-            render json: created_vaccines, status: :created
-          else
-            render json: errors, status: :unprocessable_entity
-          end
+          create_batch
         else
-          @vaccine = @animal.vaccines.build(vaccine_params)
-
-          if @vaccine.save
-            render json: @vaccine, status: :created
-          else
-            render json: @vaccine.errors, status: :unprocessable_entity
-          end
+          create_single
         end
       end
 
@@ -58,7 +31,7 @@ module Api
         if @vaccine.update(vaccine_params)
           render json: @vaccine
         else
-          render json: @vaccine.errors, status: :unprocessable_entity
+          render json: @vaccine.errors, status: :unprocessable_content
         end
       end
 
@@ -69,6 +42,45 @@ module Api
       end
 
       private
+
+      def create_batch
+        created_vaccines = []
+        errors = []
+
+        Vaccine.transaction do
+          vaccine_params[:vaccine_type_id].each do |type_id|
+            vaccine = build_batch_vaccine(type_id)
+            if vaccine.save
+              created_vaccines << vaccine
+            else
+              errors << vaccine.errors
+              raise ActiveRecord::Rollback
+            end
+          end
+        end
+
+        if errors.empty?
+          render json: created_vaccines, status: :created
+        else
+          render json: errors, status: :unprocessable_content
+        end
+      end
+
+      def create_single
+        @vaccine = @animal.vaccines.build(vaccine_params)
+
+        if @vaccine.save
+          render json: @vaccine, status: :created
+        else
+          render json: @vaccine.errors, status: :unprocessable_content
+        end
+      end
+
+      def build_batch_vaccine(type_id)
+        @animal.vaccines.build(
+          vaccine_params.except(:vaccine_type_id).merge(vaccine_type_id: type_id)
+        )
+      end
 
       def set_client
         @client = Client.find(params[:client_id])
@@ -83,7 +95,8 @@ module Api
       end
 
       def vaccine_params
-        params.require(:vaccine).permit( :user_id, :application_date, :return_date, :applied_dose, :obs, vaccine_type_id: [])
+        params.require(:vaccine).permit(:user_id, :application_date, :return_date, :applied_dose, :obs,
+                                        vaccine_type_id: [])
       end
     end
   end
