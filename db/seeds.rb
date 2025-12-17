@@ -18,7 +18,7 @@ end
     client.rg = "12345678#{i}"
     client.phone = "1234567891#{i}"
     client.address = "address #{i}"
-    client.number_address = "#{i}"
+    client.number_address = i.to_s
     client.compl_address = "compl address #{i}"
     client.neighborhoods = "neighborhoods #{i}"
     client.user_id = user.id
