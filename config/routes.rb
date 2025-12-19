@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       resources :appointments
       resources :vaccine_types
       resources :users
+      resources :clinic_services
     end
   end
 
