@@ -2,7 +2,7 @@ module Api
   module V1
     class WeightsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_animal, only: %i[index create destroy]
+      before_action :set_animal, only: %i[index create]
       before_action :set_weight, only: [:destroy]
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/weights
@@ -33,16 +33,11 @@ module Api
       private
 
       def set_animal
-        @client = Client.find(params[:client_id])
-        @animal = @client.animals.find(params[:animal_id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client or Animal not found' }, status: :not_found
+        @animal = Animal.find(params[:animal_id])
       end
 
       def set_weight
-        @weight = @animal.weights.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Weight not found' }, status: :not_found
+        @weight = Weight.find(params[:id])
       end
 
       def weight_params

@@ -2,8 +2,8 @@
 module Api
   module V1
     class VaccinesController < ApplicationController
-      before_action :set_client
-      before_action :set_animal
+      before_action :set_client, only: %i[index create]
+      before_action :set_animal, only: %i[index create]
       before_action :set_vaccine, only: %i[show update destroy]
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/vaccines
@@ -83,15 +83,15 @@ module Api
       end
 
       def set_client
-        @client = Client.find(params[:client_id])
+        # Não precisamos mais buscar o client da URL, podemos pegar do animal se necessário
       end
 
       def set_animal
-        @animal = @client.animals.find(params[:animal_id])
+        @animal = Animal.find(params[:animal_id])
       end
 
       def set_vaccine
-        @vaccine = @animal.vaccines.find(params[:id])
+        @vaccine = Vaccine.find(params[:id])
       end
 
       def vaccine_params

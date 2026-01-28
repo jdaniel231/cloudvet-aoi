@@ -11,8 +11,6 @@ module Api
 
       def show
         render json: @client, serializer: ClientSerializer, status: :ok
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client not found' }, status: :not_found
       end
 
       def create
@@ -42,8 +40,6 @@ module Api
 
       def set_client
         @client = Client.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client not found' }, status: :not_found
       end
 
       def client_params
