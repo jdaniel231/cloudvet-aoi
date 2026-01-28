@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_17_141142) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_26_133631) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -62,6 +62,37 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_17_141142) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "ticket_items", force: :cascade do |t|
+    t.bigint "ticket_id", null: false
+    t.string "item_type", null: false
+    t.bigint "reference_id"
+    t.string "description", null: false
+    t.integer "quantity", default: 1, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.decimal "total_price", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "discount", precision: 10, scale: 2, default: "0.0"
+    t.index ["item_type", "reference_id"], name: "index_ticket_items_on_item_type_and_reference_id"
+    t.index ["ticket_id"], name: "index_ticket_items_on_ticket_id"
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "animal_id", null: false
+    t.decimal "subtotal", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "discount", precision: 10, scale: 2, default: "0.0"
+    t.decimal "surcharge", precision: 10, scale: 2, default: "0.0"
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "payment_status", default: "pendente"
+    t.string "payment_method"
+    t.datetime "payment_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["animal_id"], name: "index_tickets_on_animal_id"
+    t.index ["user_id"], name: "index_tickets_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -111,6 +142,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_17_141142) do
   add_foreign_key "appointments", "animals"
   add_foreign_key "appointments", "clients"
   add_foreign_key "appointments", "users"
+  add_foreign_key "ticket_items", "tickets"
+  add_foreign_key "tickets", "animals"
+  add_foreign_key "tickets", "users"
   add_foreign_key "vaccines", "animals"
   add_foreign_key "vaccines", "vaccine_types"
   add_foreign_key "weights", "animals"

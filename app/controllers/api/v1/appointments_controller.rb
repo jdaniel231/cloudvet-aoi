@@ -1,7 +1,7 @@
 module Api
   module V1
     class AppointmentsController < ApplicationController
-      before_action :set_client_and_animal
+      before_action :set_client_and_animal, only: %i[index create]
       before_action :set_appointment, only: %i[show update destroy]
 
       # GET /api/v1/clients/:client_id/animals/:animal_id/appointments
@@ -47,19 +47,15 @@ module Api
 
       private
 
-      # Busca client e animal para todas ações (exceto talvez index se quiser listar geral)
+      # Busca animal e client
       def set_client_and_animal
-        @client = Client.find(params[:client_id])
-        @animal = @client.animals.find(params[:animal_id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Client or Animal not found' }, status: :not_found
+        @animal = Animal.find(params[:animal_id])
+        @client = @animal.client
       end
 
-      # Busca a consulta garantindo que pertence ao client e animal indicados
+      # Busca a consulta diretamente pelo ID
       def set_appointment
-        @appointment = @animal.appointments.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Appointment not found' }, status: :not_found
+        @appointment = Appointment.find(params[:id])
       end
 
       def appointment_params
